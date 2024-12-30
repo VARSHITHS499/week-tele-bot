@@ -6,7 +6,6 @@ import time
 import pandas as pd
 from datetime import datetime
 import logging
-import time
 
 keep_alive()
 
