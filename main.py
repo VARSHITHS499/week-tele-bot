@@ -1,3 +1,5 @@
+import os
+from keep_alive import keep_alive
 import requests
 from bs4 import BeautifulSoup
 import time
@@ -6,6 +8,7 @@ from datetime import datetime
 import logging
 import time
 
+keep_alive()
 
 # Define Telegram bot details
 TELEGRAM_API_URL = "https://api.telegram.org/bot8018141731:AAEzdGmFO4DRoSZN-Jkqt2bCysOc2KfPN9E/sendMessage"
@@ -18,7 +21,7 @@ CHARTLINK_SCREENER_URL = "https://chartink.com/screener/weekly-scan-nitin-2"
 previous_stocks = set()
 
 # Set up logging
-logging.basicConfig(filename="stock_monitor.log", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def send_telegram_message(message):
     """Sends a message to the Telegram chat."""
@@ -31,7 +34,6 @@ def send_telegram_message(message):
         response.raise_for_status()  # Raise an exception for 4xx/5xx errors
     except requests.exceptions.RequestException as e:
         current_time = datetime.now().strftime("%d-%b-%Y at %I:%M%p")
-        print(f"{current_time} - Failed to send message: {e}")
         logging.error(f"Failed to send message: {e}")
 
 def get_all_stocks():
@@ -69,18 +71,15 @@ def get_all_stocks():
                 df.reset_index(drop=True, inplace=True)
                 
                 current_time = datetime.now().strftime("%d-%b-%Y at %I:%M%p")
-                print(f'{current_time} - Number of stocks found: {len(df)}')
                 logging.info(f'Number of stocks found: {len(df)}')
 
                 return df
             else:
                 current_time = datetime.now().strftime("%d-%b-%Y at %I:%M%p")
-                print(f'{current_time} - No stock data found.')
                 logging.warning('No stock data found.')
                 return None
         except requests.exceptions.RequestException as e:
             current_time = datetime.now().strftime("%d-%b-%Y at %I:%M%p")
-            print(f"{current_time} - Error in HTTP request: {e}")
             logging.error(f"Error in HTTP request: {e}")
             return None
 
@@ -94,7 +93,6 @@ def monitor_stocks():
 
             if not added_stocks.empty:
                 current_time = datetime.now().strftime("%d-%b-%Y at %I:%M%p")
-                print(f"{current_time} - New stocks found: \n{added_stocks}")
                 logging.info(f"New stocks found: \n{added_stocks}")
 
                 for _, stock in added_stocks.iterrows():
@@ -102,20 +100,17 @@ def monitor_stocks():
                     price = stock['close']
                     message = f"New stock found:-\nWhen: {current_time}\n\n '{nse_code}' - {price}"
                     send_telegram_message(message)
-                    print(f"{current_time} - Alert sent for: {nse_code} at {price}")
                     logging.info(f"Alert sent for: {nse_code} at {price}")
 
             # Update the list of previously seen stocks
             previous_stocks = set(all_stocks['nsecode'])
 
         time.sleep(10)
-        
-    print(f"{current_time} - STOPED")
+
     
 # Start monitoring
 try:
     monitor_stocks()
 except KeyboardInterrupt:
     current_time = datetime.now().strftime("%d-%b-%Y at %I:%M%p")
-    print(f"{current_time} - Monitoring stopped manually.")
     logging.info("Monitoring stopped manually.")
