@@ -18,7 +18,7 @@ CHARTLINK_SCREENER_URL = "https://chartink.com/screener/weekly-scan-nitin-2"
 previous_stocks = set()
 
 # Set up logging
-logging.basicConfig(filename="C:/Users/HP/Desktop/BOT/stock_monitor.log", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename="stock_monitor.log", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def send_telegram_message(message):
     """Sends a message to the Telegram chat."""
